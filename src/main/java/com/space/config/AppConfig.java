@@ -89,4 +89,14 @@ public class AppConfig {
     public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(dataSource());
     }
+
+//    @Bean
+//    public JpaVendorAdapter jpaVendorAdapter(){
+//        HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
+//        jpaVendorAdapter.setGenerateDdl(true);
+//        jpaVendorAdapter.setShowSql(true);
+//
+//        return jpaVendorAdapter;
+//    }
+
 }
