@@ -10,12 +10,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Controller // This means that this class is a Controller
 @RequestMapping(path = "/rest/ships") // This means URL's start with /demo (after Application path)
 public class ShipController {
+
   @Autowired // This means to get the bean called userRepository
   private ShipRepo shipRepo;
 
@@ -45,20 +49,20 @@ public class ShipController {
                   Long after,
           @RequestParam(value = "before", required = false)
                   Long before,
-//          @RequestParam(value = "isUsed", required = false)
-//                  Boolean isUsed,
-//          @RequestParam(value = "minSpeed", required = false)
-//                  Double minSpeed,
-//          @RequestParam(value = "maxSpeed", required = false)
-//                  Double maxSpeed,
-//          @RequestParam(value = "minCrewSize", required = false)
-//                  Integer minCrewSize,
-//          @RequestParam(value = "maxCrewSize", required = false)
-//                  Integer maxCrewSize,
-//          @RequestParam(value = "minRating", required = false)
-//                  Double minRating,
-//          @RequestParam(value = "maxRating", required = false)
-//          Double maxRating,
+          @RequestParam(value = "isUsed", required = false)
+                  Boolean isUsed,
+          @RequestParam(value = "minSpeed", required = false)
+                  Double minSpeed,
+          @RequestParam(value = "maxSpeed", required = false)
+                  Double maxSpeed,
+          @RequestParam(value = "minCrewSize", required = false)
+                  Integer minCrewSize,
+          @RequestParam(value = "maxCrewSize", required = false)
+                  Integer maxCrewSize,
+          @RequestParam(value = "minRating", required = false)
+                  Double minRating,
+          @RequestParam(value = "maxRating", required = false)
+                  Double maxRating,
           @RequestParam(value = "order", required = false, defaultValue = "ID")
                   String order,
           @RequestParam(value = "pageNumber", required = false, defaultValue = "0")
@@ -69,12 +73,22 @@ public class ShipController {
     Sort sort = new Sort(Sort.Direction.ASC, ShipOrder.valueOf(order).getFieldName());
     Pageable page = PageRequest.of(pageNumber, pageSize, sort);
 
+    Date minDate = new Date(0);
+    Date maxDate = new Date((long) (1e+14));
+
     List<Ship> ships = shipRepo.findShipWithPagination(
             name,
             planet,
             shipType == null ? null : shipType.name(),
-            after == null ? new Date(Long.MIN_VALUE) : new Date(Long.MIN_VALUE),
-            before == null ? new Date(Long.MAX_VALUE) : new Date(Long.MAX_VALUE),
+            after == null ? minDate : new Date(after),
+            before == null ? maxDate : new Date(before),
+            isUsed,
+            minSpeed == null ? 0.00 : minSpeed,
+            maxSpeed == null ? 1.00 : maxSpeed,
+            minCrewSize == null ? 0 : minCrewSize,
+            maxCrewSize == null ? Integer.MAX_VALUE : maxCrewSize,
+            minRating == null ? 0.00 : minRating,
+            maxRating == null ? Double.MAX_VALUE : maxRating,
             page);
 
     return ships;
@@ -92,15 +106,41 @@ public class ShipController {
           @RequestParam(value = "after", required = false)
                   Long after,
           @RequestParam(value = "before", required = false)
-                  Long before
+                  Long before,
+          @RequestParam(value = "isUsed", required = false)
+                  Boolean isUsed,
+          @RequestParam(value = "minSpeed", required = false)
+                  Double minSpeed,
+          @RequestParam(value = "maxSpeed", required = false)
+                  Double maxSpeed,
+          @RequestParam(value = "minCrewSize", required = false)
+                  Integer minCrewSize,
+          @RequestParam(value = "maxCrewSize", required = false)
+                  Integer maxCrewSize,
+          @RequestParam(value = "minRating", required = false)
+                  Double minRating,
+          @RequestParam(value = "maxRating", required = false)
+                  Double maxRating
   ) {
 
-    return shipRepo.findShip(
+    Date minDate = new Date(0);
+    Date maxDate = new Date((long) (1e+14));
+
+    int size = shipRepo.findShip(
             name,
             planet,
             shipType == null ? null : shipType.name(),
-            after == null ? new Date(Long.MIN_VALUE) : new Date(Long.MIN_VALUE),
-            before == null ? new Date(Long.MAX_VALUE) : new Date(Long.MAX_VALUE)
-    ).size();
+            after == null ? minDate : new Date(after),
+            before == null ? maxDate : new Date(before),
+            isUsed,
+            minSpeed == null ? 0.00 : minSpeed,
+            maxSpeed == null ? 1.00 : maxSpeed,
+            minCrewSize == null ? 0 : minCrewSize,
+            maxCrewSize == null ? Integer.MAX_VALUE : maxCrewSize,
+            minRating == null ? 0.00 : minRating,
+            maxRating == null ? Double.MAX_VALUE : maxRating
+      ).size();
+    return size;
+
   }
 }

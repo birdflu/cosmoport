@@ -1,12 +1,8 @@
 package com.space.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -18,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
@@ -27,18 +24,26 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 @ComponentScan("com.space.service")
 @EnableJpaRepositories(basePackages = "com.space.repository")
 public class AppConfig {
-
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
         em.setPackagesToScan("com.space.model");
 
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setGenerateDdl(true);
+        vendorAdapter.setShowSql(true);
+        for (Map.Entry<String, Object> objectEntry : vendorAdapter.getJpaPropertyMap().entrySet()) {
+            System.out.println(objectEntry.getKey() + " : " + objectEntry.getValue());
+
+        }
+
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(additionalProperties());
 
         return em;
+
     }
 
     @Profile("prod")
@@ -84,19 +89,5 @@ public class AppConfig {
 
         return properties;
     }
-
-    @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
-    }
-
-//    @Bean
-//    public JpaVendorAdapter jpaVendorAdapter(){
-//        HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-//        jpaVendorAdapter.setGenerateDdl(true);
-//        jpaVendorAdapter.setShowSql(true);
-//
-//        return jpaVendorAdapter;
-//    }
 
 }

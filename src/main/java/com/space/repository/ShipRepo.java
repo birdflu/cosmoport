@@ -15,16 +15,27 @@ public interface ShipRepo extends JpaRepository<Ship, Integer> {
           "WHERE (:name is null or c.name like %:name%) " +
           "and (:planet is null or c.planet like %:planet%) " +
           "and (:shipType is null or c.shipType = :shipType) " +
-          "and c.prodDate between :after and :before ";
-
+          "and (c.prodDate between :after and :before) " +
+          "and (:isUsed is null or c.isUsed = :isUsed) " +
+          "and (c.speed between :minSpeed and :maxSpeed) " +
+          "and (c.crewSize between :minCrewSize and :maxCrewSize) " +
+          "and (c.rating between :minRating and :maxRating) "
+          ;
 
   @Query(query)
   List<Ship> findShipWithPagination(
           @Param("name") String name,
           @Param("planet") String planet,
           @Param("shipType") String shipType,
-          @Param("after") Date after,
+          @Param("after") Date  after,
           @Param("before") Date before,
+          @Param("isUsed") Boolean isUsed,
+          @Param("minSpeed") Double minSpeed,
+          @Param("maxSpeed") Double maxSpeed,
+          @Param("minCrewSize") Integer minCrewSize,
+          @Param("maxCrewSize") Integer maxCrewSize,
+          @Param("minRating") Double minRating,
+          @Param("maxRating") Double maxRating,
           Pageable page);
 
   @Query(query)
@@ -33,6 +44,14 @@ public interface ShipRepo extends JpaRepository<Ship, Integer> {
           @Param("planet") String planet,
           @Param("shipType") String shipType,
           @Param("after") Date after,
-          @Param("before") Date before);
+          @Param("before") Date before,
+          @Param("isUsed") Boolean isUsed,
+          @Param("minSpeed") Double minSpeed,
+          @Param("maxSpeed") Double maxSpeed,
+          @Param("minCrewSize") Integer minCrewSize,
+          @Param("maxCrewSize") Integer maxCrewSize,
+          @Param("minRating") Double minRating,
+          @Param("maxRating") Double maxRating
+  );
 }
 
