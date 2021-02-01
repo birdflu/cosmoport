@@ -1,30 +1,39 @@
 package com.space.model;
 
-import javax.persistence.*;
-import java.sql.Date;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
+import java.util.Date;
+
+@Component
 @Entity(name = "ship")
 public class Ship {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-  @Column(name = "name")
   private String name;
-  @Column(name = "planet")
   private String  planet;
-  @Column(name = "shipType")
   private String shipType;
-  @Column(name = "prodDate")
   private Date prodDate;
-  @Column(name = "isUsed")
   private boolean isUsed;
-  @Column(name = "speed")
   private Double speed;
-  @Column(name = "crewSize")
   private Integer crewSize;
-  @Column(name = "rating")
   private Double rating;
+
+  public Ship() {
+
+  }
+
+  public Ship(String name, String planet, String shipType, Date prodDate, boolean isUsed,
+              Double speed, Integer crewSize) {
+    this.name = name;
+    this.planet = planet;
+    this.shipType = shipType;
+    this.prodDate = prodDate;
+    this.isUsed = isUsed;
+    this.speed = speed;
+    this.crewSize = crewSize;
+  }
 
   public Integer getId() {
     return id;
@@ -96,5 +105,19 @@ public class Ship {
 
   public void setRating(Double rating) {
     this.rating = rating;
+  }
+
+  @Override
+  public String toString() {
+    return "Ship{" +
+            "name='" + name + '\'' +
+            ", planet='" + planet + '\'' +
+            ", shipType='" + shipType + '\'' +
+            ", prodDate=" + prodDate +
+            ", isUsed=" + isUsed +
+            ", speed=" + speed +
+            ", crewSize=" + crewSize +
+            ", rating=" + rating +
+            '}';
   }
 }

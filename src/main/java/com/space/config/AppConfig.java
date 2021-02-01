@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
@@ -23,71 +22,78 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 @EnableTransactionManagement
 @ComponentScan("com.space.service")
 @EnableJpaRepositories(basePackages = "com.space.repository")
+
 public class AppConfig {
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan("com.space.model");
+  @Bean
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+    em.setDataSource(dataSource());
+    em.setPackagesToScan("com.space.model");
 
-//        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setShowSql(true);
-        for (Map.Entry<String, Object> objectEntry : vendorAdapter.getJpaPropertyMap().entrySet()) {
-            System.out.println(objectEntry.getKey() + " : " + objectEntry.getValue());
+    JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//        vendorAdapter.setGenerateDdl(true);
+//        vendorAdapter.setShowSql(true);
+//        for (Map.Entry<String, Object> objectEntry : vendorAdapter.getJpaPropertyMap().entrySet()) {
+//            System.out.println(objectEntry.getKey() + " : " + objectEntry.getValue());
+//
+//        }
+    em.setJpaVendorAdapter(vendorAdapter);
+    em.setJpaProperties(additionalProperties());
 
-        }
+    return em;
 
-        em.setJpaVendorAdapter(vendorAdapter);
-        em.setJpaProperties(additionalProperties());
+  }
 
-        return em;
 
-    }
+  @Profile("prod")
+  @Bean
+  public DataSource dataSource() {
+    DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+    dataSource.setUrl("jdbc:mysql://localhost:3306/cosmoport?serverTimezone=UTC");
+    dataSource.setUsername("root");
+    dataSource.setPassword("root");
+    return dataSource;
+  }
 
-    @Profile("prod")
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/cosmoport?serverTimezone=UTC");
-        dataSource.setUsername("root");
-        dataSource.setPassword("root");
-        return dataSource;
-    }
+  @Profile("dev")
+  @Bean(name = "dataSource")
+  public DataSource dataSourceForTests() {
 
-    @Profile("dev")
-    @Bean(name = "dataSource")
-    public DataSource dataSourceForTests() {
+    return new EmbeddedDatabaseBuilder()
+            .generateUniqueName(true)
+            .setType(H2)
+            .setScriptEncoding("UTF-8")
+            .ignoreFailedDrops(true)
+            .addScript("test.sql")
+            .build();
+  }
 
-        return new EmbeddedDatabaseBuilder()
-                .generateUniqueName(true)
-                .setType(H2)
-                .setScriptEncoding("UTF-8")
-                .ignoreFailedDrops(true)
-                .addScript("test.sql")
-                .build();
-    }
+  @Bean
+  public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+    JpaTransactionManager transactionManager = new JpaTransactionManager();
+    transactionManager.setEntityManagerFactory(emf);
 
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf);
+    return transactionManager;
+  }
 
-        return transactionManager;
-    }
+  @Bean
+  public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+    return new PersistenceExceptionTranslationPostProcessor();
+  }
 
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-        return new PersistenceExceptionTranslationPostProcessor();
-    }
+  private Properties additionalProperties() {
+    Properties properties = new Properties();
+    properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+    properties.put("hibernate.show_sql", "false");
+    properties.put("hibernate.format_sql", "false");
 
-    private Properties additionalProperties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-
-        return properties;
-    }
+//    properties.put("logging.level.org.springframework", "INFO");
+//    properties.put("logging.level.hibernate", "INFO");
+//    properties.setProperty("org.hibernate.envers.audit_strategy",
+//            "org.hibernate.envers.strategy.ValidityAuditStrategy");
+    return properties;
+  }
 
 }

@@ -8,33 +8,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.validation.Valid;
 import java.util.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Controller // This means that this class is a Controller
-@RequestMapping(path = "/rest/ships") // This means URL's start with /demo (after Application path)
+@Controller
+@RequestMapping(path = "/rest/ships")
 public class ShipController {
 
-  @Autowired // This means to get the bean called userRepository
+  @Autowired
   private ShipRepo shipRepo;
-
-/*  @PostMapping(path="/add") // Map ONLY POST Requests
-  public @ResponseBody String addNewUser (@RequestParam String name
-          , @RequestParam String email) {
-    // @ResponseBody means the returned String is the response, not a view name
-    // @RequestParam means it is a parameter from the GET or POST request
-
-    User n = new User();
-    n.setName(name);
-    n.setEmail(email);
-    userRepository.save(n);
-    return "Saved";
-  }*/
 
   @GetMapping
   public @ResponseBody
@@ -141,6 +129,36 @@ public class ShipController {
             maxRating == null ? Double.MAX_VALUE : maxRating
       ).size();
     return size;
+  }
 
+  @PostMapping()
+  public String save(@Valid @RequestBody Ship ship, Errors errors
+//          @RequestParam(value = "name", required = true)
+//                  String name,
+//          @RequestParam(value = "planet", required = true)
+//                  String planet,
+//          @RequestParam(value = "shipType", required = true)
+//                  ShipType shipType,
+//          @RequestParam(value = "prodDate", required = true)
+//                  Long prodDate,
+//          @RequestParam(value = "isUsed", required = false)
+//                  Boolean isUsed,
+//          @RequestParam(value = "speed", required = true)
+//                  Double speed,
+//          @RequestParam(value = "crewSize", required = true)
+//                  Integer crewSize
+  ) {
+//    if (name == null) {
+//      response.setStatus( HttpServletResponse.SC_BAD_REQUEST  );
+//    }
+    if (errors.hasErrors()) {
+      System.out.println("errors = " + errors.getAllErrors().stream()
+              .map(x -> x.getDefaultMessage())
+              .collect(Collectors.joining(",")));
+    } else System.out.println("NO ERRORS");
+    //Ship ship = new Ship(name, planet, shipType.name(), new Date(prodDate), isUsed, speed, crewSize);
+    System.out.println("ship = " + ship);
+    shipRepo.save(ship);
+    return "redirect:/rest/ships";
   }
 }
