@@ -1,8 +1,10 @@
 package com.space.model;
 
+import com.space.controller.ShipTypeSubSet;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 @Component
@@ -11,13 +13,28 @@ public class Ship {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
+  @NotBlank(message = "The Name must not be empty")
   private String name;
+  @NotBlank(message = "The Planet must not be empty")
   private String  planet;
+  @NotNull
+  @NotEmpty(message = "The ShipType must not be empty")
+  @ShipTypeSubSet(anyOf = {ShipType.MERCHANT, ShipType.MILITARY, ShipType.TRANSPORT})
   private String shipType;
-  private Date prodDate;
+  @NotNull
+  @Temporal(TemporalType.DATE)
+  private Date prodDate;    //min 0001-02-03 15:13:53.091
   private boolean isUsed;
+  @NotNull
+  @Min(value = 0, message = "The Speed must be greater then ${value}" )
+  @Max(value = 1, message = "The Speed must be less then ${value}" )
   private Double speed;
+  @NotNull
+  @PositiveOrZero(message = "The CrewSize must be positive or 0" )
   private Integer crewSize;
+  @NotNull
+  @Min(value = 0, message = "The Rating must be greater then ${value}" )
+  @Max(value = 50, message = "The Rating must be less then ${value}" )
   private Double rating;
 
   public Ship() {
@@ -38,10 +55,6 @@ public class Ship {
   public Integer getId() {
     return id;
   }
-
-//  public void setId(Integer id) {
-//    this.id = id;
-//  }
 
   public String getName() {
     return name;

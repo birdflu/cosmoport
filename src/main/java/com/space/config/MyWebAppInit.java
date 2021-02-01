@@ -25,11 +25,11 @@ public class MyWebAppInit extends AbstractAnnotationConfigDispatcherServletIniti
 
         for(String log:loggers) {
             Logger logger = (Logger) LoggerFactory.getLogger(log);
-            logger.setLevel(Level.INFO);
+            logger.setLevel(Level.WARN);
             logger.setAdditive(true);
         }
 
-        ((Logger) LoggerFactory.getLogger("org.hibernate.resource.jdbc")).setLevel(Level.TRACE);
+        ((Logger) LoggerFactory.getLogger("org.hibernate.resource.jdbc")).setLevel(Level.WARN);
     }
 
     @Override

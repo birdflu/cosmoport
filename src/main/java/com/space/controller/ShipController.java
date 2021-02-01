@@ -155,6 +155,7 @@ public class ShipController {
       System.out.println("errors = " + errors.getAllErrors().stream()
               .map(x -> x.getDefaultMessage())
               .collect(Collectors.joining(",")));
+
     } else System.out.println("NO ERRORS");
     //Ship ship = new Ship(name, planet, shipType.name(), new Date(prodDate), isUsed, speed, crewSize);
     System.out.println("ship = " + ship);
