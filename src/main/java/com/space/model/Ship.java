@@ -17,24 +17,23 @@ public class Ship {
   private String name;
   @NotBlank(message = "The Planet must not be empty")
   private String  planet;
-  @NotNull
+  @NotNull(message = "The ShipType must not be null")
   @NotEmpty(message = "The ShipType must not be empty")
   @ShipTypeSubSet(anyOf = {ShipType.MERCHANT, ShipType.MILITARY, ShipType.TRANSPORT})
   private String shipType;
-  @NotNull
+  @NotNull(message = "The ProdDate must not be null")
   @Temporal(TemporalType.DATE)
   private Date prodDate;    //min 0001-02-03 15:13:53.091
   private boolean isUsed;
-  @NotNull
+  @NotNull(message = "The Speed must not be null")
   @Min(value = 0, message = "The Speed must be greater then ${value}" )
   @Max(value = 1, message = "The Speed must be less then ${value}" )
   private Double speed;
-  @NotNull
+  @NotNull(message = "The CrewSize must not be null")
   @PositiveOrZero(message = "The CrewSize must be positive or 0" )
   private Integer crewSize;
-  @NotNull
-  @Min(value = 0, message = "The Rating must be greater then ${value}" )
-  @Max(value = 50, message = "The Rating must be less then ${value}" )
+//  @Min(value = 0, message = "The Rating must be greater then ${value}" )
+//  @Max(value = 50, message = "The Rating must be less then ${value}" )
   private Double rating;
 
   public Ship() {

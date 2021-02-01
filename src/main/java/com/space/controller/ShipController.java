@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -127,39 +129,27 @@ public class ShipController {
             maxCrewSize == null ? Integer.MAX_VALUE : maxCrewSize,
             minRating == null ? 0.00 : minRating,
             maxRating == null ? Double.MAX_VALUE : maxRating
-      ).size();
+    ).size();
     return size;
   }
 
   @PostMapping()
-  public String save(@Valid @RequestBody Ship ship, Errors errors
-//          @RequestParam(value = "name", required = true)
-//                  String name,
-//          @RequestParam(value = "planet", required = true)
-//                  String planet,
-//          @RequestParam(value = "shipType", required = true)
-//                  ShipType shipType,
-//          @RequestParam(value = "prodDate", required = true)
-//                  Long prodDate,
-//          @RequestParam(value = "isUsed", required = false)
-//                  Boolean isUsed,
-//          @RequestParam(value = "speed", required = true)
-//                  Double speed,
-//          @RequestParam(value = "crewSize", required = true)
-//                  Integer crewSize
-  ) {
-//    if (name == null) {
-//      response.setStatus( HttpServletResponse.SC_BAD_REQUEST  );
-//    }
+  public ResponseEntity<Ship> save(@Valid @RequestBody Ship ship, Errors errors) {
     if (errors.hasErrors()) {
       System.out.println("errors = " + errors.getAllErrors().stream()
               .map(x -> x.getDefaultMessage())
               .collect(Collectors.joining(",")));
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
 
-    } else System.out.println("NO ERRORS");
+    System.out.println("NO ERRORS");
     //Ship ship = new Ship(name, planet, shipType.name(), new Date(prodDate), isUsed, speed, crewSize);
     System.out.println("ship = " + ship);
+
+    if (ship.getRating() == null)
+      ship.setRating(0.0);
+
     shipRepo.save(ship);
-    return "redirect:/rest/ships";
+    return ResponseEntity.status(HttpStatus.OK).body(ship);
   }
 }

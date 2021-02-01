@@ -22,10 +22,6 @@ public class ShipTypeValidator implements ConstraintValidator<ShipTypeSubSet, St
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    System.out.println("Arrays.asList(subset) = " + Arrays.asList(subset).toString());
-    System.out.println("value = " + value);
-    System.out.println("ShipOrder.valueOf(value) = " + ShipType.valueOf(value));
-
     return value == null || Arrays.asList(subset).contains(ShipType.valueOf(value));
   }
 }
