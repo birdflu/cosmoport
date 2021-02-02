@@ -12,7 +12,7 @@ import java.util.Date;
 public class Ship {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
   @NotBlank(message = "The Name must not be empty")
   private String name;
   @NotBlank(message = "The Planet must not be empty")
@@ -51,7 +51,7 @@ public class Ship {
     this.crewSize = crewSize;
   }
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 

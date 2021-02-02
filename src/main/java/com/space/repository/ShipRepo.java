@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Date;
 import java.util.List;
 
-public interface ShipRepo extends JpaRepository<Ship, Integer> {
+public interface ShipRepo extends JpaRepository<Ship, Long> {
 
   String query = "SELECT c FROM ship c " +
           "WHERE (:name is null or c.name like %:name%) " +

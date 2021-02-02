@@ -4,12 +4,14 @@ import com.space.model.Ship;
 import com.space.model.ShipType;
 import com.space.repository.ShipRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -63,25 +66,20 @@ public class ShipController {
     Sort sort = new Sort(Sort.Direction.ASC, ShipOrder.valueOf(order).getFieldName());
     Pageable page = PageRequest.of(pageNumber, pageSize, sort);
 
-    Date minDate = new Date(0);
-    Date maxDate = new Date((long) (1e+14));
-
-    List<Ship> ships = shipRepo.findShipWithPagination(
+    return shipRepo.findShipWithPagination(
             name,
             planet,
             shipType == null ? null : shipType.name(),
-            after == null ? minDate : new Date(after),
-            before == null ? maxDate : new Date(before),
+            after == null ? new Date(0) : new Date(after),
+            before == null ? new Date((long) (1e+14)) : new Date(before),
             isUsed,
             minSpeed == null ? 0.00 : minSpeed,
             maxSpeed == null ? 1.00 : maxSpeed,
             minCrewSize == null ? 0 : minCrewSize,
             maxCrewSize == null ? Integer.MAX_VALUE : maxCrewSize,
             minRating == null ? 0.00 : minRating,
-            maxRating == null ? Double.MAX_VALUE : maxRating,
+            maxRating == null ? 50.00 : maxRating,
             page);
-
-    return ships;
   }
 
   @GetMapping("/count")
@@ -113,31 +111,27 @@ public class ShipController {
                   Double maxRating
   ) {
 
-    Date minDate = new Date(0);
-    Date maxDate = new Date((long) (1e+14));
-
-    int size = shipRepo.findShip(
+    return shipRepo.findShip(
             name,
             planet,
             shipType == null ? null : shipType.name(),
-            after == null ? minDate : new Date(after),
-            before == null ? maxDate : new Date(before),
+            after == null ? new Date(0) : new Date(after),
+            before == null ? new Date((long) (1e+14)) : new Date(before),
             isUsed,
             minSpeed == null ? 0.00 : minSpeed,
             maxSpeed == null ? 1.00 : maxSpeed,
             minCrewSize == null ? 0 : minCrewSize,
             maxCrewSize == null ? Integer.MAX_VALUE : maxCrewSize,
             minRating == null ? 0.00 : minRating,
-            maxRating == null ? Double.MAX_VALUE : maxRating
+            maxRating == null ? 50.00 : maxRating
     ).size();
-    return size;
   }
 
   @PostMapping()
   public ResponseEntity<Ship> save(@Valid @RequestBody Ship ship, Errors errors) {
     if (errors.hasErrors()) {
       System.out.println("errors = " + errors.getAllErrors().stream()
-              .map(x -> x.getDefaultMessage())
+              .map(DefaultMessageSourceResolvable::getDefaultMessage)
               .collect(Collectors.joining(",")));
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
@@ -151,5 +145,17 @@ public class ShipController {
 
     shipRepo.save(ship);
     return ResponseEntity.status(HttpStatus.OK).body(ship);
+  }
+
+
+  @GetMapping("{id}")
+  @ResponseBody
+  public ResponseEntity<Ship>  getShipById(@PathVariable Long id) {
+    Optional<Ship> ship = shipRepo.findById(id);
+
+    if (ship.equals(Optional.empty()))
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ship.get());
   }
 }
