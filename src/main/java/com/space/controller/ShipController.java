@@ -132,7 +132,6 @@ public class ShipController {
       return getBadRequestHttpStatus(errors);
     }
 
-    System.out.println("NO ERRORS");
     //Ship ship = new Ship(name, planet, shipType.name(), new Date(prodDate), isUsed, speed, crewSize);
     System.out.println("ship = " + ship);
 
@@ -146,7 +145,7 @@ public class ShipController {
 
   @GetMapping("{id}")
   @ResponseBody
-  public ResponseEntity<Ship>  getShipById(@PathVariable Long id) {
+  public ResponseEntity<Ship> getShipById(@PathVariable Long id) {
     Optional<Ship> ship = shipRepo.findById(id);
 
     if (ship.equals(Optional.empty()))
@@ -156,7 +155,7 @@ public class ShipController {
   }
 
   @PostMapping("{id}")
-  public ResponseEntity<Ship> updateShipById(@PathVariable @Valid Long id, @RequestBody Ship ship, Errors errors) {
+  public ResponseEntity<Ship> updateShipById(@PathVariable @Valid Long id, @Valid @RequestBody Ship ship, Errors errors) {
     if (errors.hasErrors()) {
       return getBadRequestHttpStatus(errors);
     }
@@ -197,9 +196,9 @@ public class ShipController {
   }
 
   private ResponseEntity<Ship> getBadRequestHttpStatus(Errors errors) {
-    System.out.println("errors = " + errors.getAllErrors().stream()
+    System.out.println("Model validation errors : " + errors.getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.joining(",")));
+            .collect(Collectors.joining(", ")));
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
   }
 }
