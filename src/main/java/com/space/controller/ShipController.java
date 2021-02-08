@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -130,10 +129,7 @@ public class ShipController {
   @PostMapping()
   public ResponseEntity<Ship> save(@Valid @RequestBody Ship ship, Errors errors) {
     if (errors.hasErrors()) {
-      System.out.println("errors = " + errors.getAllErrors().stream()
-              .map(DefaultMessageSourceResolvable::getDefaultMessage)
-              .collect(Collectors.joining(",")));
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+      return getBadRequestHttpStatus(errors);
     }
 
     System.out.println("NO ERRORS");
@@ -157,5 +153,53 @@ public class ShipController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
     return ResponseEntity.status(HttpStatus.OK).body(ship.get());
+  }
+
+  @PostMapping("{id}")
+  public ResponseEntity<Ship> updateShipById(@PathVariable @Valid Long id, @RequestBody Ship ship, Errors errors) {
+    if (errors.hasErrors()) {
+      return getBadRequestHttpStatus(errors);
+    }
+
+    Optional<Ship> foundShip = shipRepo.findById(id);
+    if (foundShip.equals(Optional.empty()))
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+    Ship updatedShip = foundShip.get();
+    if (ship.getName() != null)
+      updatedShip.setName(ship.getName());
+    if (ship.getPlanet() != null)
+      updatedShip.setPlanet(ship.getPlanet());
+    if (ship.getShipType() != null)
+      updatedShip.setShipType(ship.getShipType());
+    if (ship.getProdDate() != null)
+      updatedShip.setProdDate(ship.getProdDate());
+    if (ship.getSpeed() != null)
+      updatedShip.setSpeed(ship.getSpeed());
+    if (ship.getCrewSize() != null)
+      updatedShip.setCrewSize(ship.getCrewSize());
+    if (ship.getRating() != null)
+      updatedShip.setRating(ship.getRating());
+
+    shipRepo.save(updatedShip);
+
+    return ResponseEntity.status(HttpStatus.OK).body(updatedShip);
+  }
+
+  @DeleteMapping("{id}")
+  public ResponseEntity<Ship> deleteShipById(@PathVariable @Valid Long id) {
+    Optional<Ship> deletedShip = shipRepo.findById(id);
+    if (deletedShip.equals(Optional.empty()))
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+    shipRepo.deleteById(id);
+    return ResponseEntity.status(HttpStatus.OK).body(null);
+  }
+
+  private ResponseEntity<Ship> getBadRequestHttpStatus(Errors errors) {
+    System.out.println("errors = " + errors.getAllErrors().stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .collect(Collectors.joining(",")));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
   }
 }

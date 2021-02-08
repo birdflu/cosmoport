@@ -6,7 +6,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 
-//public class ShipOrderValidator implements ConstraintValidator<ShipOrderSubSet, ShipOrder> {
 public class ShipTypeValidator implements ConstraintValidator<ShipTypeSubSet, String> {
   private ShipType[] subset;
 
@@ -14,11 +13,6 @@ public class ShipTypeValidator implements ConstraintValidator<ShipTypeSubSet, St
   public void initialize(ShipTypeSubSet constraint) {
     this.subset = constraint.anyOf();
   }
-
-//  @Override
-//  public boolean isValid(ShipOrder value, ConstraintValidatorContext context) {
-//    return value == null || Arrays.asList(subset).contains(value);
-//  }
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {

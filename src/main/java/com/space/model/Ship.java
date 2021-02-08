@@ -32,8 +32,6 @@ public class Ship {
   @NotNull(message = "The CrewSize must not be null")
   @PositiveOrZero(message = "The CrewSize must be positive or 0" )
   private Integer crewSize;
-//  @Min(value = 0, message = "The Rating must be greater then ${value}" )
-//  @Max(value = 50, message = "The Rating must be less then ${value}" )
   private Double rating;
 
   public Ship() {
