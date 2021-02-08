@@ -16,6 +16,7 @@ public class DoubleValueValidator implements ConstraintValidator<DoubleBetween, 
 
   @Override
   public boolean isValid(Double aDouble, ConstraintValidatorContext constraintValidatorContext) {
+    if (aDouble == null) return false;
     if (Math.round(aDouble*100) >= Math.round(this.min * 100)  &&
             Math.round(aDouble*100) <= Math.round(this.max * 100)) {
       return true;

@@ -11,6 +11,7 @@ import java.util.Date;
 @Entity(name = "ship")
 public class Ship {
   @Id
+  @Min(value = 1)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   @NotBlank(message = "The Name must not be empty")
@@ -25,11 +26,11 @@ public class Ship {
   private String shipType;
   @NotNull(message = "The ProdDate must not be null")
   @Temporal(TemporalType.DATE)
-  @ProdDate(message = "The year of prodDate must be between ${min} and ${max}")
+  @ProdDate(message = "The year of prodDate must be between 2800 and 3019")
   private Date prodDate;
   private boolean isUsed;
   @NotNull(message = "The Speed must not be null")
-  @DoubleBetween(min = 0.01, max = 0.99, message = "The Speed must be between ${min} and ${max}")
+  @DoubleBetween(min = 0.01, max = 0.99/*, message = "The Speed must be between ${min} and ${max}"*/)
   private Double speed;
   @NotNull(message = "The CrewSize must not be null")
   @Min(value = 1, message = "The CrewSize must be greater or equal then ${value}" )

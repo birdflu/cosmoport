@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.validation.Valid;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +60,7 @@ public class ShipController {
                   String order,
           @RequestParam(value = "pageNumber", required = false, defaultValue = "0")
                   Integer pageNumber,
-          @RequestParam(value = "pageSize", required = false, defaultValue = "5")
+          @RequestParam(value = "pageSize", required = false, defaultValue = "3")
                   Integer pageSize
   ) {
     Sort sort = new Sort(Sort.Direction.ASC, ShipOrder.valueOf(order).getFieldName());
@@ -131,12 +132,8 @@ public class ShipController {
     if (errors.hasErrors()) {
       return getBadRequestHttpStatus(errors);
     }
-
-    //Ship ship = new Ship(name, planet, shipType.name(), new Date(prodDate), isUsed, speed, crewSize);
-    System.out.println("ship = " + ship);
-
-    if (ship.getRating() == null)
-      ship.setRating(0.0);
+    if (ship.getSpeed() != null && ship.getProdDate() != null)
+      ship.setRating(getRating(ship.getSpeed(), ship.isUsed(), ship.getProdDate()));
 
     shipRepo.save(ship);
     return ResponseEntity.status(HttpStatus.OK).body(ship);
@@ -146,6 +143,10 @@ public class ShipController {
   @GetMapping("{id}")
   @ResponseBody
   public ResponseEntity<Ship> getShipById(@PathVariable Long id) {
+    if (id == null || id <= 0) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
     Optional<Ship> ship = shipRepo.findById(id);
 
     if (ship.equals(Optional.empty()))
@@ -155,14 +156,29 @@ public class ShipController {
   }
 
   @PostMapping("{id}")
-  public ResponseEntity<Ship> updateShipById(@PathVariable @Valid Long id, @Valid @RequestBody Ship ship, Errors errors) {
-    if (errors.hasErrors()) {
-      return getBadRequestHttpStatus(errors);
+  public ResponseEntity<Ship> updateShipById(@PathVariable Long id,
+                                             @Valid @RequestBody Ship ship, Errors errors) {
+    if (id == null || id <= 0) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     Optional<Ship> foundShip = shipRepo.findById(id);
     if (foundShip.equals(Optional.empty()))
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+    if (errors.hasErrors()) {
+      if (foundShip != null &&
+              ship.getName() == null &&
+              ship.getPlanet() == null &&
+              ship.getShipType() == null &&
+              ship.getProdDate() == null &&
+              ship.getSpeed() == null &&
+              ship.getCrewSize() == null){
+        return ResponseEntity.status(HttpStatus.OK).body(foundShip.get());
+      } else {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ship);
+      }
+    }
 
     Ship updatedShip = foundShip.get();
     if (ship.getName() != null)
@@ -173,12 +189,13 @@ public class ShipController {
       updatedShip.setShipType(ship.getShipType());
     if (ship.getProdDate() != null)
       updatedShip.setProdDate(ship.getProdDate());
+    updatedShip.setUsed(ship.isUsed());
     if (ship.getSpeed() != null)
       updatedShip.setSpeed(ship.getSpeed());
     if (ship.getCrewSize() != null)
       updatedShip.setCrewSize(ship.getCrewSize());
-    if (ship.getRating() != null)
-      updatedShip.setRating(ship.getRating());
+    if (ship.getSpeed() != null && ship.getProdDate() != null)
+      updatedShip.setRating(getRating(ship.getSpeed(), ship.isUsed(), ship.getProdDate()));
 
     shipRepo.save(updatedShip);
 
@@ -186,7 +203,11 @@ public class ShipController {
   }
 
   @DeleteMapping("{id}")
-  public ResponseEntity<Ship> deleteShipById(@PathVariable @Valid Long id) {
+  public ResponseEntity<Ship> deleteShipById(@PathVariable Long id) {
+    if (id == null || id <= 0) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
     Optional<Ship> deletedShip = shipRepo.findById(id);
     if (deletedShip.equals(Optional.empty()))
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -201,4 +222,15 @@ public class ShipController {
             .collect(Collectors.joining(", ")));
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
   }
+
+  private Double getRating(Double speed, boolean isUsed, Date prodDate) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(prodDate);
+    int year = calendar.get(Calendar.YEAR);
+    double rating = (double) (Math.round(100 *
+            80 * speed * (isUsed ? 0.5 : 1) / (3019 - year + 1)
+    )) / 100;
+    return rating;
+  }
+
 }

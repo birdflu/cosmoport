@@ -11,6 +11,8 @@ public class ProdDateValidator implements ConstraintValidator<ProdDate, Date> {
    }
 
    public boolean isValid(Date prodDate, ConstraintValidatorContext context) {
+      if (prodDate == null) return false;
+
       boolean res = false;
       try {
          res = prodDate.after(new SimpleDateFormat("yyyy").parse("2800")) &&
@@ -18,6 +20,7 @@ public class ProdDateValidator implements ConstraintValidator<ProdDate, Date> {
       } catch (ParseException e) {
          e.printStackTrace();
       }
+
       return res;
    }
 }
